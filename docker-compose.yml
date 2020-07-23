@@ -1,23 +1,18 @@
 version: "3"
 services:
-  nginx:
-    image: nginx:${NGINX_VERSION}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/www:/var/www/html/:rw
-      - ./nginx/conf/conf.d:/etc/nginx/conf.d/:rw
-      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/log:/var/log/nginx/:rw
-    restart: always
-    networks:
-      - default
-
   xunsearch:
     image: hightman/xunsearch:latest
     volumes:
       - ./xunsearch/data:/usr/local/xunsearch/data
+    networks:
+      - default
+
+  jenkins:
+    image: jenkins/jenkins
+    ports:
+      - "8099:8080"
+    volumes:
+        - ./jenkins:/var/jenkins_home:rw
     networks:
       - default
 
@@ -28,15 +23,6 @@ services:
     restart: always
     cap_add:
       - SYS_PTRACE
-    networks:
-      - default
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    restart: always
-    entrypoint: ["redis-server", "/etc/redis.conf"]
     networks:
       - default
 
