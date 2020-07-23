@@ -1,0 +1,54 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/www:/var/www/html/:rw
+      - ./nginx/conf/conf.d:/etc/nginx/conf.d/:rw
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/log:/var/log/nginx/:rw
+    restart: always
+    networks:
+      - default
+
+  xunsearch:
+    image: hightman/xunsearch:latest
+    volumes:
+      - ./xunsearch/data:/usr/local/xunsearch/data
+    networks:
+      - default
+
+  swaggerui:
+    image: swaggerapi/swagger-ui:latest
+    ports:
+      - "8010:8080"
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - default
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+    entrypoint: ["redis-server", "/etc/redis.conf"]
+    networks:
+      - default
+
+  consul:
+    image: consul:latest
+    command: "agent -server -bootstrap -ui -node=consul -client=0.0.0.0"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    ports:
+      - "8500:8500"
+    networks:
+      - default
+
+networks:
+  default:
